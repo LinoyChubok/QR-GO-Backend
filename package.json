@@ -1,0 +1,29 @@
+{
+  "name": "qr-go-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LinoyChubok/QR-GO-Backend.git"
+  },
+  "author": "Sagi Chubok & Linoy Chubok",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LinoyChubok/QR-GO-Backend/issues"
+  },
+  "homepage": "https://github.com/LinoyChubok/QR-GO-Backend#readme",
+  "devDependencies": {
+    "dotenv": "^8.2.0",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.6"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^5.11.8"
+  }
+}
