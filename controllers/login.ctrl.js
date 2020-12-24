@@ -1,5 +1,5 @@
 exports.loginController = {
     login(req, res) {
-        res.status(200).send("Hello Sagi");
+        res.sendFile(path.join(__dirname + '/client/index.html'));
     }
 }

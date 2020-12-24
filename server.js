@@ -1,5 +1,6 @@
 const express = require("express");
 const logger = require("morgan");
+const path = require('path');
 
 const { loginRouter } = require("./routers/login.router");
 
@@ -9,8 +10,9 @@ const port = process.env.PORT || 3000;
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname + '/client/')));
 
-app.use('/api', loginRouter);
+app.use('/', loginRouter);
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
