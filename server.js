@@ -1,7 +1,8 @@
 const path = require('path');
 const express = require("express");
 const logger = require("morgan");
-const passport = require('passport')
+const passport = require('passport');
+const session = require('express-session');
 
 // Passport config
 require('./config/passport')(passport)
@@ -18,6 +19,15 @@ app.use(express.urlencoded({ extended: true }));
 
 // Static folder
 app.use(express.static(path.join(__dirname + '/client/')));
+
+// Sessions
+app.use(
+    session({
+      secret: 'shenkar',
+      resave: false,
+      saveUninitialized: false,
+    })
+  )
 
 // Passport middleware
 app.use(passport.initialize())
