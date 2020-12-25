@@ -1,7 +1,10 @@
+const path = require('path');
 const express = require("express");
 const logger = require("morgan");
-const path = require('path');
+const passport = require('passport')
 
+// Passport config
+require('./config/passport')(passport)
 const { loginRouter } = require("./routers/login.router");
 
 const app = express();
@@ -14,6 +17,10 @@ app.use(express.urlencoded({ extended: true }));
 // Static folder
 app.use(express.static(path.join(__dirname + '/client/')));
 
+// Passport middleware
+app.use(passport.initialize())
+app.use(passport.session())
+
 // Routes
 app.use('/', loginRouter);
 
@@ -21,5 +28,6 @@ app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something is broken!');
 });
+
 
 app.listen(port, () => console.log('Express server is running on port ', port));
