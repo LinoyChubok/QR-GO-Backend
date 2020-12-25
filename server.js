@@ -34,7 +34,7 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 // Routes
-app.use('/', require("./routers/login.router"));
+app.use('/', require("./routers/index.router"));
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
