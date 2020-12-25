@@ -31,7 +31,7 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 // Static folder
-app.use(express.static(path.join(__dirname, 'client')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.use('/', require('./routers/index.router'));

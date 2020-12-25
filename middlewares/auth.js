@@ -1,17 +1,16 @@
 module.exports = {
   ensureAuth: function (req, res, next) {
     if (req.isAuthenticated()) {
-      return next()
+      return next();
     } else {
-      res.redirect('/')
+      res.redirect("/");
     }
   },
   ensureGuest: function (req, res, next) {
     if (!req.isAuthenticated()) {
       return next();
     } else {
-      // Check rolls and redirect to specific page
-      //res.redirect('/');
+      res.redirect("/admin");  // Check rolls and redirect to specific page
     }
-  },
-}
+  }
+};
