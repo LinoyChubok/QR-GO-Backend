@@ -1,8 +1,11 @@
 const path = require('path');
-const express = require('express');
 const logger = require('morgan');
 const passport = require('passport');
+const express = require('express');
 const session = require('express-session');
+const mongoose = require('mongoose')
+const MongoStore = require('connect-mongo')(session)
+
 
 // Passport config
 require('./config/passport')(passport)
@@ -23,6 +26,7 @@ app.use(
       secret: 'shenkar',
       resave: false,
       saveUninitialized: false,
+      store: new MongoStore({ mongooseConnection: mongoose.connection })
     })
   )
 

@@ -5,7 +5,10 @@ const authRouter = new Router();
 authRouter.get('/google', passport.authenticate('google', { scope: ['profile'] }));
 
 authRouter.get('/google/callback',passport.authenticate('google', { failureRedirect: '/' }), (req, res) => {
-  res.redirect('/admin');
+  if (req.user.role === "admin")
+    res.redirect("/admin"); 
+  else if (req.user.role === "user")
+    res.send("hello user");
 });
 
 authRouter.get('/logout', (req, res) => {

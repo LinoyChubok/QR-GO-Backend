@@ -10,7 +10,10 @@ module.exports = {
     if (!req.isAuthenticated()) {
       return next();
     } else {
-      res.redirect("/admin");  // Check rolls and redirect to specific page
+      if (req.user.role === "admin")
+        res.redirect("/admin"); 
+      else if (req.user.role === "user")
+        res.send("hello user");
     }
   }
 };
