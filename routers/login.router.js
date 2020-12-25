@@ -5,4 +5,4 @@ const loginRouter = new Router();
 
 loginRouter.get('/', ensureAuth, loginController.login);
 
-module.exports = { loginRouter };
+module.exports =  loginRouter ;

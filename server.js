@@ -5,12 +5,14 @@ const passport = require('passport')
 
 // Passport config
 require('./config/passport')(passport)
-const { loginRouter } = require("./routers/login.router");
 
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Morgan logger
 app.use(logger("dev"));
+
+// Body parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -22,7 +24,7 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 // Routes
-app.use('/', loginRouter);
+app.use('/', require("./routers/login.router"));
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
