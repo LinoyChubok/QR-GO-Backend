@@ -1,6 +1,6 @@
 const path = require('path');
-const express = require("express");
-const logger = require("morgan");
+const express = require('express');
+const logger = require('morgan');
 const passport = require('passport');
 const session = require('express-session');
 
@@ -11,14 +11,11 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Morgan logger
-app.use(logger("dev"));
+app.use(logger('dev'));
 
 // Body parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Static folder
-app.use(express.static(path.join(__dirname + '/client/')));
 
 // Sessions
 app.use(
@@ -33,8 +30,12 @@ app.use(
 app.use(passport.initialize())
 app.use(passport.session())
 
+// Static folder
+app.use(express.static(path.join(__dirname, 'client')));
+
 // Routes
-app.use('/', require("./routers/index.router"));
+app.use('/', require('./routers/index.router'));
+app.use('/auth', require('./routers/auth.router'));
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
