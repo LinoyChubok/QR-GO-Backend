@@ -1,3 +1,3 @@
 require('dotenv').config({path:'./config/.env'});
-require('./server');
+require('./app');
 require('./config/db_connection'); 

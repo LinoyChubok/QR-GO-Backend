@@ -5,10 +5,8 @@ const express = require('express');
 const session = require('express-session');
 const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo')(session);
-const { ensureAuth, ensureGuest } = require('./middlewares/auth');
-
-// Passport config
-require('./config/passport')(passport);
+require('./api/controllers/user.ctrl')(passport);
+const { GuestOnly, AuthOnly, PlayerOnly, AdminOnly } = require('./api/middlewares/auth');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -38,9 +36,9 @@ app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
-app.get('/', ensureGuest, (req, res) => { res.sendFile(path.join(__dirname, '/views', 'index.html')); });
-app.use('/admin', require('./routers/admin.router'));
-app.use('/auth', require('./routers/auth.router'));
+app.get('/', GuestOnly, (req, res) => { res.sendFile(path.join(__dirname, '/views', 'index.html')); });
+app.use('/auth', require('./api/routers/auth.router'));
+app.use('/admin', AdminOnly, require('./api/routers/admin.router'));
 
 app.use((err, req, res, next) => {
     console.error(err.stack);

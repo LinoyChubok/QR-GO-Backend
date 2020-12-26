@@ -8,7 +8,7 @@ authRouter.get('/google/callback',passport.authenticate('google', { failureRedir
   //This validation for directing each role after the google authenticate
   if (req.user.role === "admin")
     res.redirect("/admin"); 
-  else if (req.user.role === "user")
+  else if (req.user.role === "player")
     res.redirect("/join"); 
 });
 
