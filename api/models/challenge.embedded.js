@@ -20,9 +20,9 @@ const challengeSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  coordinate: {
+  coordinate: 
     coordinateSchema
-  },
+ ,
   challengeRadius: {
       type: Number,
       required: true
