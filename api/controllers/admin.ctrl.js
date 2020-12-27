@@ -52,7 +52,32 @@ exports.adminController = {
             })
         });
     },
-    updateRoute(req, res) {},
+    updateRoute(req, res) {
+        const routeId = req.params.id;
+
+        Route.findById(routeId).then((route) => {
+            if (!route) {
+                return res.status(404).json({
+                    status: false,
+                    message: 'Route not found'
+                })
+            }
+        }).then(() => {
+            Route.updateOne({_id: routeId}, {
+                $set: {...req.body}
+            }).then(() => {
+                res.status(200).json({
+                    status: true,
+                    message: `Route _id: ${routeId} has been updated successfuly`
+                })
+            }).catch(error => {
+                res.status(500).json({
+                    status: false,
+                    message: error
+                })
+            });
+        })
+    },
     deleteRoute(req, res) { 
         const routeId = req.params.id;
 
