@@ -2,12 +2,18 @@ const path = require('path');
 const Route = require('../models/route.model');
 
 exports.adminController = {
-    adminDashboard(req, res) {
-        if (req.user.role === "admin")
-            res.sendFile(path.join(__dirname, '../../views', 'admin.html'));
-        else res.send(404);
+    getAllRoutes(req, res) {
+        Route.find().then((routes) => {
+            res.status(200).json({
+                routes
+            });
+        }).catch(error => {
+            res.status(500).json({
+                status: false,
+                message: error
+            })
+        });
     },
-    getAllRoutes(req, res) {},
     getRoute(req, res) {},
     createRoute(req, res) {
         const { routeName, district, description, image, challengesAmount, challenges } = req.body;
