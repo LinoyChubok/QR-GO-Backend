@@ -53,5 +53,19 @@ exports.adminController = {
         });
     },
     updateRoute(req, res) {},
-    deleteRoute(req, res) {}
+    deleteRoute(req, res) { 
+        const routeId = req.params.id;
+
+        Route.findOneAndDelete( { _id: routeId }).then((route) => {
+            res.status(200).json({
+                status: true,
+                message: `Route _id: ${routeId} has been deleted successfuly`
+            })
+        }).catch(error => {
+            res.status(500).json({
+                status: false,
+                message: error
+            })
+        });
+    }
 }
