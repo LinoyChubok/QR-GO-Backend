@@ -1,16 +1,10 @@
 const { Router } = require ('express');
 const passport = require('passport')
 const authRouter = new Router();
+const { GuestOnly, AuthOnly, PlayerOnly, AdminOnly } = require('../middlewares/auth');
 
 authRouter.get('/google', passport.authenticate('google', { scope: ['profile'] }));
-
-authRouter.get('/google/callback',passport.authenticate('google', { failureRedirect: '/' }), (req, res) => {
-  //This validation for directing each role after the google authenticate
-  if (req.user.role === "admin")
-    res.redirect("/admin"); 
-  else if (req.user.role === "player")
-    res.redirect("/join"); 
-});
+authRouter.get('/google/callback',passport.authenticate('google', { failureRedirect: '/' }), GuestOnly);
 
 authRouter.get('/logout', (req, res) => {
   req.logout();

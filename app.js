@@ -37,8 +37,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.get('/', GuestOnly, (req, res) => { res.sendFile(path.join(__dirname, '/views', 'index.html')); });
-app.get('/admin', AdminOnly, (req, res) => { res.sendFile(path.join(__dirname, '/views', 'admin.html')); });
 app.use('/auth', require('./api/routers/auth.router'));
+app.get('/admin', AdminOnly, (req, res) => { res.sendFile(path.join(__dirname, '/views', 'admin.html')); });
 
 app.use('/api/admin', require('./api/routers/admin.router'));
 

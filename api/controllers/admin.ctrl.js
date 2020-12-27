@@ -14,7 +14,20 @@ exports.adminController = {
             })
         });
     },
-    getRoute(req, res) {},
+    getRoute(req, res) {
+        const routeId = req.params.id;
+
+        Route.findById(routeId).then((route) => {
+            res.status(200).json({
+                route
+            })
+        }).catch(error => {
+            res.status(500).json({
+                status: false,
+                message: error
+            })
+        });
+    },
     createRoute(req, res) {
         const { routeName, district, description, image, challengesAmount, challenges } = req.body;
 
