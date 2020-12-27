@@ -3,7 +3,10 @@ const Route = require('../models/route.model');
 
 exports.adminController = {
     getAllRoutes(req, res) {
-        Route.find().then((routes) => {
+        let filter = { };
+        if('district' in req.query)
+            filter.district = req.query.district;
+        Route.find(filter).then((routes) => {
             res.status(200).json({
                 routes
             });
