@@ -41,6 +41,7 @@ app.use('/auth', require('./api/routers/auth.router'));
 app.get('/admin', AdminOnly, (req, res) => { res.sendFile(path.join(__dirname, '/views', 'admin.html')); });
 
 app.use('/api/admin', require('./api/routers/admin.router'));
+app.use('/api/qr', require('./api/routers/qr.router'));
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
