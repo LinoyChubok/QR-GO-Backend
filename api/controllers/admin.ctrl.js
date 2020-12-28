@@ -1,4 +1,3 @@
-const path = require('path');
 const Route = require('../models/route.model');
 
 exports.adminController = {
