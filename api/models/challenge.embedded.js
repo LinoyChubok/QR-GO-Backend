@@ -12,6 +12,10 @@ const coordinateSchema = new mongoose.Schema({
 });
 
 const challengeSchema = new mongoose.Schema({
+  qrData: {
+    type: String,
+    required: true
+  },
   qrUrl: {
     type: String,
     required: true
@@ -25,7 +29,7 @@ const challengeSchema = new mongoose.Schema({
  ,
   challengeRadius: {
       type: Number,
-      required: true
+      required: false
   }
 })
 
