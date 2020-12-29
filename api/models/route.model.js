@@ -1,10 +1,12 @@
 const mongoose = require('mongoose')
+const uniqueValidator = require('mongoose-unique-validator');
 const {challengeSchema} = require('./challenge.embedded')
 
 const routeSchema = new mongoose.Schema({
   routeName: {
     type: String,
     required: true,
+    unique: true
   },
   district: {
     type: String,
@@ -27,4 +29,5 @@ const routeSchema = new mongoose.Schema({
     [challengeSchema]
 })
 
+routeSchema.plugin(uniqueValidator);
 module.exports = mongoose.model('Route', routeSchema)
