@@ -2,8 +2,8 @@ const cryptoRandomString = require('crypto-random-string');
 const axios = require('axios');
 
 exports.qrController = {
-    getQR(req, res) {
-        res.send("ok");
+    scanQR(req, res) {
+        res.send("Scanned Successfully!");
     },
     createQR(req, res) {
         const randomString = cryptoRandomString({length: 30, type: 'alphanumeric'});
@@ -25,5 +25,3 @@ exports.qrController = {
         });
     }  
 }
-
-
