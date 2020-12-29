@@ -10,7 +10,7 @@ exports.qrController = {
         const service_url = "http://localhost:3000/api/qr/";
         const qr_data = `${service_url}${randomString}`;
         
-        const qr_url = `https://api.qrserver.com/v1/create-qr-code/?size=650x650&data=${qr_data}`;
+        const qr_url = `https://api.qrserver.com/v1/create-qr-code/?size=700x700&data=${qr_data}`;
         axios.get(qr_url, {responseType: 'arraybuffer'})
           .then(response => {
             res.status(200).json({
