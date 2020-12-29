@@ -1,6 +1,6 @@
 const Route = require('../models/route.model');
 
-exports.adminController = {
+exports.routeController = {
     getAllRoutes(req, res) {
         let filter = { };
         if('district' in req.query)
