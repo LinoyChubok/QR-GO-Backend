@@ -12,7 +12,7 @@ exports.routeController = {
         }).catch(error => {
             res.status(500).json({
                 status: false,
-                message: error
+                message: 'Error'
             })
         });
     },
@@ -26,7 +26,7 @@ exports.routeController = {
         }).catch(error => {
             res.status(500).json({
                 status: false,
-                message: error
+                message: 'Error'
             })
         });
     },
@@ -42,16 +42,23 @@ exports.routeController = {
             challenges
         });
 
-        newRoute.save().then(() => {
-            res.status(200).json({
-                status: true,
-                message: 'Route has been added successfuly'
+        if(challengesAmount > 0)
+        {
+            newRoute.save().then(() => {
+                res.status(200).json({
+                    status: true,
+                    message: 'Route has been added successfuly'
+                });
+            }).catch(error => {
+                res.status(500).json({
+                    status: false,
+                    message: 'Error'
+                });
             });
-        }).catch(error => {
-            res.status(500).json({
-                status: false,
-                message: error
-            })
+        }
+        else res.status(500).json({
+            status: false,
+            message: 'Please add at least one challenge'
         });
     },
     updateRoute(req, res) {
@@ -75,7 +82,7 @@ exports.routeController = {
             }).catch(error => {
                 res.status(500).json({
                     status: false,
-                    message: error
+                    message: 'Error'
                 })
             });
         })
@@ -91,7 +98,7 @@ exports.routeController = {
         }).catch(error => {
             res.status(500).json({
                 status: false,
-                message: error
+                message:'Error'
             })
         });
     }
