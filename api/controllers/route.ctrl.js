@@ -52,7 +52,7 @@ exports.routeController = {
             }).catch(error => {
                 res.status(500).json({
                     status: false,
-                    message: 'Error when trying to add a new route'
+                    message: 'Error please fill all the fields'
                 });
             });
         }
