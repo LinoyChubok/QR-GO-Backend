@@ -8,7 +8,7 @@ authRouter.get('/google/callback',passport.authenticate('google', { failureRedir
 
 authRouter.get('/logout', (req, res) => {
   req.logout();
-  res.redirect('/');
+  res.redirect('http://127.0.0.1:5500/index.html');
 });
 
 module.exports = authRouter;

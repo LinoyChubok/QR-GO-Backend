@@ -3,9 +3,9 @@
     GuestOnly: (req, res, next) => {
       if (req.isAuthenticated()) {
         if (req.user.role === "admin")
-          res.redirect("/admin");
+          res.redirect("http://127.0.0.1:5500/routes.html");
         else if (req.user.role === "player")
-          res.redirect("/join");
+          res.send("Please stay tuned")
       } else {
         return next();
       }
