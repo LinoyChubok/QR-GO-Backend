@@ -14,21 +14,21 @@
       if (req.isAuthenticated()) {
         return next();
       } else {
-        res.redirect("/");
+        res.redirect("http://127.0.0.1:5500/index.html");
       }
     },
     PlayerOnly: (req, res, next) => {
       if (req.isAuthenticated() && req.user.role === "player") {
           return next();
       } else {
-        res.redirect("/");
+        res.redirect("http://127.0.0.1:5500/index.html");
       }
     },
     AdminOnly: (req, res, next) => {
       if (req.isAuthenticated() && req.user.role === "admin") {
           return next();
       } else {
-        res.redirect("/");
+        res.redirect("http://127.0.0.1:5500/index.html");
       }
     },
   };
