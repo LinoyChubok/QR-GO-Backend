@@ -4,7 +4,7 @@ const authRouter = new Router();
 const { GuestOnly, AuthOnly, PlayerOnly, AdminOnly } = require('../middlewares/auth');
 
 authRouter.get('/google', passport.authenticate('google', { scope: ['profile'] }));
-authRouter.get('/google/callback',passport.authenticate('google', { failureRedirect: '/' }), GuestOnly);
+authRouter.get('/google/callback',passport.authenticate('google', { failureRedirect: 'http://127.0.0.1:5500/index.html' }), GuestOnly);
 
 authRouter.get('/logout', (req, res) => {
   req.logout();
