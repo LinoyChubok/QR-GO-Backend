@@ -41,16 +41,10 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Static folder
-app.use(express.static(path.join(__dirname, 'public')));
-
 // Routes
-app.get('/', GuestOnly, (req, res) => { res.sendFile(path.join(__dirname, '/views', 'index.html')); });
 app.use('/auth', require('./api/routers/auth.router'));
-app.get('/admin', AdminOnly, (req, res) => { res.sendFile(path.join(__dirname, '/views', 'admin.html')); });
-
-app.use('/api/routes', require('./api/routers/route.router')); //TODO: ADD ADMIN AUTH
-app.use('/api/qr', require('./api/routers/qr.router')); //TODO: ADD AUTH
+app.use('/api/routes', require('./api/routers/route.router')); 
+app.use('/api/qr', require('./api/routers/qr.router')); 
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
