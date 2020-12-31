@@ -7,7 +7,7 @@ exports.qrController = {
     },
     createQR(req, res) {
         const randomString = cryptoRandomString({length: 30, type: 'alphanumeric'});
-        const service_url = "http://localhost:3000/api/qr/";
+        const service_url = "https://qr-go.herokuapp.com/api/qr/";
         const qr_secretkey = `${service_url}${randomString}`;
         
         const qr_url = `https://api.qrserver.com/v1/create-qr-code/?size=700x700&data=${qr_secretkey}`;
