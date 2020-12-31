@@ -12,7 +12,7 @@ exports.routeController = {
         }).catch(error => {
             res.status(500).json({
                 status: false,
-                message: 'Error'
+                message: 'Error while fetching the routes data'
             })
         });
     },
@@ -26,7 +26,7 @@ exports.routeController = {
         }).catch(error => {
             res.status(500).json({
                 status: false,
-                message: 'Error'
+                message: 'Error while fetching the route data'
             })
         });
     },
@@ -52,7 +52,7 @@ exports.routeController = {
             }).catch(error => {
                 res.status(500).json({
                     status: false,
-                    message: 'Error'
+                    message: 'Error when trying to add a new route'
                 });
             });
         }
@@ -96,7 +96,7 @@ exports.routeController = {
                 }).catch(error => {
                     res.status(500).json({
                         status: false,
-                        message: 'Error'
+                        message: 'Error while updating the route data'
                     })
                 });
             }
@@ -117,7 +117,7 @@ exports.routeController = {
         }).catch(error => {
             res.status(500).json({
                 status: false,
-                message:'Error'
+                message:'Error while deleting the route'
             })
         });
     }
