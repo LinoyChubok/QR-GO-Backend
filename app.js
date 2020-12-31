@@ -1,5 +1,5 @@
 const path = require('path');
-const logger = require('morgan');
+//const logger = require('morgan');
 const passport = require('passport');
 const express = require('express');
 const session = require('express-session');
@@ -12,7 +12,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Morgan logger
-app.use(logger('dev'));
+//app.use(logger('dev'));
 
 // Access Control
 app.use((req, res, next) => {
