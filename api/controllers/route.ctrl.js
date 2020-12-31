@@ -72,18 +72,37 @@ exports.routeController = {
                 })
             }
         }).then(() => {
-            Route.updateOne({_id: routeId}, {
-                $set: {...req.body}
-            }).then(() => {
-                res.status(200).json({
-                    status: true,
-                    message: `Route _id: ${routeId} has been updated successfuly`
-                })
-            }).catch(error => {
-                res.status(500).json({
-                    status: false,
-                    message: 'Error'
-                })
+            const challengesAmount = req.body.challengesAmount;
+            if(challengesAmount > 0)
+            {
+                const challenges = req.body.challenges;
+
+                for(let i = 0 ; i < challengesAmount; i++)
+                {
+                    if(!challenges[i].clue)
+                    res.status(500).json({
+                        status: false,
+                        message: 'Please fill in the clue for any challenge'
+                    });
+                }
+
+                Route.updateOne({_id: routeId}, {
+                    $set: {...req.body}
+                }).then(() => {
+                    res.status(200).json({
+                        status: true,
+                        message: `Route _id: ${routeId} has been updated successfuly`
+                    })
+                }).catch(error => {
+                    res.status(500).json({
+                        status: false,
+                        message: 'Error'
+                    })
+                });
+            }
+            else res.status(500).json({
+                status: false,
+                message: 'Please add at least one challenge'
             });
         })
     },
