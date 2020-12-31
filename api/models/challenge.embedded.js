@@ -29,9 +29,3 @@ const challengeSchema = new mongoose.Schema({
 })
 
 module.exports = {challengeSchema};
-
-//   React version will include
-//   challengeRadius: {
-//       type: Number,
-//       required: true
-//   }

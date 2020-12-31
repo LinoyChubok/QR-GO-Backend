@@ -1,5 +1,4 @@
 const path = require('path');
-//const logger = require('morgan');
 const passport = require('passport');
 const express = require('express');
 const session = require('express-session');
@@ -10,9 +9,6 @@ const { GuestOnly, AuthOnly, PlayerOnly, AdminOnly } = require('./api/middleware
 
 const app = express();
 const port = process.env.PORT || 3000;
-
-// Morgan logger
-//app.use(logger('dev'));
 
 // Access Control
 app.use((req, res, next) => {
