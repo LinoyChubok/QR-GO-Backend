@@ -23,13 +23,16 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     enum: ["player", "admin"],
-    //default: "player",
-    default: "admin",
+    default: "player",
   },
   createdAt: {
     type: Date,
     default: Date.now,
   },
+  group: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Group',
+  }
 })
 
 module.exports = mongoose.model('User', userSchema)

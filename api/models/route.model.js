@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const uniqueValidator = require('mongoose-unique-validator');
-const {challengeSchema} = require('./challenge.embedded')
+const { challengeSchema } = require('./challenge.embedded')
 
 const routeSchema = new mongoose.Schema({
   routeName: {

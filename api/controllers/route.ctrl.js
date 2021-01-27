@@ -33,17 +33,17 @@ exports.routeController = {
     createRoute(req, res) {
         const { routeName, district, description, image, challengesAmount, challenges } = req.body;
 
-        const newRoute = new Route({
-            routeName,
-            district,
-            description,
-            image,
-            challengesAmount,
-            challenges
-        });
-
         if(challengesAmount > 0)
         {
+            const newRoute = new Route({
+                routeName,
+                district,
+                description,
+                image,
+                challengesAmount,
+                challenges
+            });
+            
             newRoute.save().then(() => {
                 res.status(200).json({
                     status: true,

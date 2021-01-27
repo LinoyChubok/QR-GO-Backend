@@ -51,6 +51,7 @@ app.use(passport.session());
 // Routes
 app.get('/', GuestOnly, (req, res) => { res.send("QR GO REST API"); });
 app.use('/auth', require('./api/routers/auth.router'));
+app.use('/api/games', require('./api/routers/game.router')); 
 app.use('/api/routes', require('./api/routers/route.router')); 
 app.use('/api/qr', require('./api/routers/qr.router')); 
 
