@@ -24,7 +24,7 @@ const gameSchema = new mongoose.Schema({
             max: 59
         },
     },
-    groupsLimit: {
+    groupsAmount: {
         type: Number,
         required: true,
         min: 2,

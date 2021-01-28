@@ -4,7 +4,10 @@ const cryptoRandomString = require('crypto-random-string');
 
 exports.gameController = {
     getAllGames(req, res) {
-        Game.find().populate('route').then((games) => {
+        let filter = { };
+        if('district' in req.query)
+            filter.state = req.query.state;
+        Game.find(filter).populate('route').then((games) => {
             res.status(200).json({
                 games
             });
@@ -30,7 +33,7 @@ exports.gameController = {
         });
     },
     createGame(req, res) {
-        const { route, gameTime, groupsLimit } = req.body;
+        const { route, gameTime, groupsAmount } = req.body;
 
         Route.findById(route).then((route) => {
             if (!route) {
@@ -40,71 +43,81 @@ exports.gameController = {
                 })
             }
         }).then(async () => {
-            if (route) {
-                try {
-                    const games = await Game.find({
-                        $and: [{ "route": route }, { $or: [{ 'state': "Pregame State" }, { "state": "Ingame State" }] }]
-                    });
-                    let status = true;
+            const games = await Game.find({
+                $and: [{
+                    "route": route
+                }, {
+                    $or: [{
+                        'state': "Pregame State"
+                    }, {
+                        "state": "Ingame State"
+                    }]
+                }]
+            });
 
-                    if (Array.isArray(games)) {
-                        if (games.length > 0)
-                            status = false;
-                    } else if (games)
-                        status = false;
+            let status = true;
+            if (Array.isArray(games)) {
+                if (games.length > 0)
+                    status = false;
+            } else if (games)
+                status = false;
 
-                    if (!status) {
-                        return res.status(500).json({
-                            status: false,
-                            message: 'There is already other game that started at this route'
+            if (!status) {
+                return res.status(500).json({
+                    status: false,
+                    message: 'There is already other game that started at this route'
+                });
+            } else {
+                const ensurePin = async () => {
+                    let gamePin;
+                    let validPin = false;
+
+                    while (!validPin) {
+                        gamePin = cryptoRandomString({
+                            length: 4,
+                            type: 'numeric'
+                        });
+                        validPin = await Game.find({
+                            'state': 'Pregame State',
+                            'gamePin': gamePin
+                        }).then((activeGames) => {
+                            if (Array.isArray(activeGames)) {
+                                if (!(activeGames.length > 0))
+                                    validPin = true;
+                            } else if (!activeGames)
+                                validPin = true;
+
+                            return validPin;
                         });
                     }
 
-                    const ensurePin = async () => {
-                        let gamePin;
-                        let validPin = false;
+                    const newGame = new Game({
+                        route,
+                        gameTime,
+                        groupsAmount,
+                        gamePin
+                    });
 
-                        while (!validPin) {
-                            gamePin = cryptoRandomString({ length: 4, type: 'numeric' });
-
-                            validPin = await Game.find({
-                                'state': 'Pregame State',
-                                'gamePin': gamePin
-                            }).then((activeGames) => {
-                                    if (Array.isArray(activeGames)) {
-                                        if (!(activeGames.length > 0))
-                                            validPin = true;
-                                    } else if (!activeGames)
-                                        validPin = true;
-                            
-                                    return validPin;
-                                });
-                        }
-
-                        const newGame = new Game({
-                            route,
-                            gameTime,
-                            groupsLimit,
-                            gamePin
-                        });
-
-                        newGame.save();
-
+                    newGame.save().then(() => {
                         res.status(200).json({
                             status: true,
-                            message: 'Game has been created successfuly'
+                            message: 'Game has been added successfuly'
                         });
-                    };
-
-                    ensurePin();
-                } catch (error) {
-                    res.status(500).json({
-                        status: false,
-                        message: 'Error please fill all the fields correctly'
+                    }).catch(error => {
+                        res.status(500).json({
+                            status: false,
+                            message: 'Error please fill all the fields correctly'
+                        });
                     });
-                }
+                };
+                ensurePin();
             }
-        })
+        }).catch(error => {
+            res.status(500).json({
+                status: false,
+                message: 'Error while creating new game'
+            })
+        });
     },
     updateGame(req, res) {
         const gameId = req.params.id;
@@ -112,21 +125,19 @@ exports.gameController = {
         let gameObj;
 
         Game.findById(gameId).then((game) => {
-            gameObj = game;
             if (!game) {
                 return res.status(404).json({
                     status: false,
                     message: 'Game not found'
                 })
-            }
+            } else gameObj = game;
         }).then((result) => {
-
-            const { route, gameTime, groupsLimit, state } = req.body;
+            const { route, gameTime, groupsAmount, state } = req.body;
 
             let status = true;
 
             if (gameObj.state == "Pregame State") {
-                if (route || gameTime || groupsLimit || state) {
+                if (route || gameTime || groupsAmount || state) {
 
                     if (route) {
                         Route.findById(route).then((route) => {
@@ -135,7 +146,15 @@ exports.gameController = {
                             }
                         }).then(async () => {
                             const games = await Game.find({
-                                $and: [{ "route": route }, { $or: [{ 'state': "Pregame State" }, { "state": "Ingame State" }] }]
+                                $and: [{
+                                    "route": route
+                                }, {
+                                    $or: [{
+                                        'state': "Pregame State"
+                                    }, {
+                                        "state": "Ingame State"
+                                    }]
+                                }]
                             });
                             let status = true;
                             if (Array.isArray(games)) {
@@ -151,8 +170,8 @@ exports.gameController = {
                             }
                         })
                     }
-                    
-                    if (groupsLimit < 2)
+
+                    if (groupsAmount < 2)
                         status = false;
 
                     if (gameTime) {
@@ -188,16 +207,16 @@ exports.gameController = {
                 if (state) {
                     if (state != "Endgame State")
                         status = false;
+                    }
 
-                    if (route || gameTime || groupsLimit) {
+                    if (route || gameTime || groupsAmount) {
                         return res.status(500).json({
                             status: false,
                             message: 'Game already started cannot update'
                         })
-                    }
                 }
             } else if (gameObj.state == "Endgame State") {
-                if (route || gameTime || groupsLimit || state) {
+                if (route || gameTime || groupsAmount || state) {
                     return res.status(500).json({
                         status: false,
                         message: 'Game already started cannot update'
@@ -205,13 +224,16 @@ exports.gameController = {
                 }
             }
 
+            if (!(route || gameTime || groupsAmount || state))
+                status = false;
+        
             if (!status) {
                 res.status(500).json({
                     status: false,
                     message: 'Error incorrect values'
                 });
             } else {
-                Game.updateOne({ _id: gameId },
+                Game.updateOne({ _id: gameId }, 
                 { $set: { ...req.body }
                 }).then(() => {
                     res.status(200).json({
@@ -221,7 +243,7 @@ exports.gameController = {
                 }).catch(error => {
                     res.status(500).json({
                         status: false,
-                        message: 'Error while updating game'
+                        message: `Error while updating game _id: ${gameId}`
                     })
                 });
             }
