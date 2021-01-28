@@ -5,8 +5,19 @@ const cryptoRandomString = require('crypto-random-string');
 exports.gameController = {
     getAllGames(req, res) {
         let filter = { };
-        if('district' in req.query)
-            filter.state = req.query.state;
+        if('state' in req.query)
+        {
+            if(req.query.state == "Active State")
+            {
+                filter.state = {
+                    $or: [{
+                        'state': "Pregame State"
+                    }, {
+                        "state": "Ingame State"
+                    }]
+                }
+            } else filter.state = req.query.state;
+        }
         Game.find(filter).populate('route').then((games) => {
             res.status(200).json({
                 games

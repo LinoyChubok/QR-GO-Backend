@@ -28,6 +28,7 @@ const gameSchema = new mongoose.Schema({
         type: Number,
         required: true,
         min: 2,
+        default: 2
     },
     gamePin: {
         type: Number,

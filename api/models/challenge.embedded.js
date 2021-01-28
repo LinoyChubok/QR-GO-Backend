@@ -1,16 +1,5 @@
 const mongoose = require('mongoose')
 
-const coordinateSchema = new mongoose.Schema({
-    longitude:{
-        type: Number,
-        required: true
-    },
-    latitude:{
-        type: Number,
-        required: true
-    }
-});
-
 const challengeSchema = new mongoose.Schema({
   qrData: {
     type: String,
@@ -25,7 +14,16 @@ const challengeSchema = new mongoose.Schema({
     required: true
   },
   coordinate: 
-    coordinateSchema
+  {
+    longitude:{
+        type: Number,
+        required: true
+    },
+    latitude:{
+        type: Number,
+        required: true
+    }
+  }
 })
 
 module.exports = {challengeSchema};
