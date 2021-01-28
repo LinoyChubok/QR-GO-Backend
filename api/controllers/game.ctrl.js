@@ -9,7 +9,7 @@ exports.gameController = {
         {
             if(req.query.state == "Active")
             {
-                filter.state = {
+                filter = {
                     $or: [{
                         'state': "Pregame"
                     }, {
