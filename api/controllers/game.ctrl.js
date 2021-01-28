@@ -61,30 +61,24 @@ exports.gameController = {
                     }
 
                     const ensurePin = async () => {
-                        let status_1 = false;
+                        let gamePin;
+                        let validPin = false;
 
-                        while (!status_1) {
-                            status_1 = await Game.find({
+                        while (!validPin) {
+                            gamePin = cryptoRandomString({ length: 4, type: 'numeric' });
+
+                            validPin = await Game.find({
                                 'state': 'Pregame State',
                                 'gamePin': gamePin
-                            })
-                                .then((games_1) => {
-                                    if (Array.isArray(games_1)) {
-                                        if (games_1.length > 0)
-                                            status_1 = false;
-                                        else
-                                            status_1 = true;
-                                    } else if (games_1)
-                                        status_1 = false;
-                                    else
-                                        status_1 = true;
-
-                                    return status_1;
+                            }).then((activeGames) => {
+                                    if (Array.isArray(activeGames)) {
+                                        if (!(activeGames.length > 0))
+                                            validPin = true;
+                                    } else if (!activeGames)
+                                        validPin = true;
+                            
+                                    return validPin;
                                 });
-                            gamePin = cryptoRandomString({
-                                length: 4,
-                                type: 'numeric'
-                            });
                         }
 
                         const newGame = new Game({
