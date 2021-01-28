@@ -3,7 +3,7 @@
     GuestOnly: (req, res, next) => {
       if (req.isAuthenticated()) {
         if (req.user.role === "admin")
-          res.redirect("http://127.0.0.1:5500/routes.html");
+          res.redirect("https://qr-go.netlify.app/games");
         else if (req.user.role === "player")
           res.send("Please stay tuned")
       } else {
@@ -14,21 +14,21 @@
       if (req.isAuthenticated()) {
         return next();
       } else {
-        res.redirect("http://127.0.0.1:5500/index.html");
+        res.redirect("https://qr-go.netlify.app");
       }
     },
     PlayerOnly: (req, res, next) => {
       if (req.isAuthenticated() && req.user.role === "player") {
           return next();
       } else {
-        res.redirect("http://127.0.0.1:5500/index.html");
+        res.redirect("https://qr-go.netlify.app");
       }
     },
     AdminOnly: (req, res, next) => {
       if (req.isAuthenticated() && req.user.role === "admin") {
           return next();
       } else {
-        res.redirect("http://127.0.0.1:5500/index.html");
+        res.redirect("https://qr-go.netlify.app");
       }
     },
   };

@@ -15,9 +15,6 @@ const groupSchema = new mongoose.Schema({
         default: 1,
         required: true,
     },
-    challenges: 
-    [challengeSchema]
-    ,
     challengesTime: {
         type: [Date],
     },

@@ -11,7 +11,7 @@ exports.gameController = {
             {
                 filter = {
                     $or: [{
-                        'state': "Pregame"
+                        "state": "Pregame"
                     }, {
                         "state": "Ingame"
                     }]
