@@ -7,13 +7,13 @@ exports.gameController = {
         let filter = { };
         if('state' in req.query)
         {
-            if(req.query.state == "Active State")
+            if(req.query.state == "Active")
             {
                 filter.state = {
                     $or: [{
-                        'state': "Pregame State"
+                        'state': "Pregame"
                     }, {
-                        "state": "Ingame State"
+                        "state": "Ingame"
                     }]
                 }
             } else filter.state = req.query.state;
@@ -59,9 +59,9 @@ exports.gameController = {
                     "route": route
                 }, {
                     $or: [{
-                        'state': "Pregame State"
+                        'state': "Pregame"
                     }, {
-                        "state": "Ingame State"
+                        "state": "Ingame"
                     }]
                 }]
             });
@@ -89,7 +89,7 @@ exports.gameController = {
                             type: 'numeric'
                         });
                         validPin = await Game.find({
-                            'state': 'Pregame State',
+                            'state': 'Pregame',
                             'gamePin': gamePin
                         }).then((activeGames) => {
                             if (Array.isArray(activeGames)) {
@@ -147,7 +147,7 @@ exports.gameController = {
 
             let status = true;
 
-            if (gameObj.state == "Pregame State") {
+            if (gameObj.state == "Pregame") {
                 if (route || gameTime || groupsAmount || state) {
 
                     if (route) {
@@ -161,9 +161,9 @@ exports.gameController = {
                                     "route": route
                                 }, {
                                     $or: [{
-                                        'state': "Pregame State"
+                                        'state': "Pregame"
                                     }, {
-                                        "state": "Ingame State"
+                                        "state": "Ingame"
                                     }]
                                 }]
                             });
@@ -209,14 +209,14 @@ exports.gameController = {
                     }
 
                     if (state) {
-                        if (state != "Ingame State")
+                        if (state != "Ingame")
                             status = false;
                     }
 
                 } else status = false;
-            } else if (gameObj.state == "Ingame State") {
+            } else if (gameObj.state == "Ingame") {
                 if (state) {
-                    if (state != "Endgame State")
+                    if (state != "Endgame")
                         status = false;
                     }
 
@@ -226,7 +226,7 @@ exports.gameController = {
                             message: 'Game already started cannot update'
                         })
                 }
-            } else if (gameObj.state == "Endgame State") {
+            } else if (gameObj.state == "Endgame") {
                 if (route || gameTime || groupsAmount || state) {
                     return res.status(500).json({
                         status: false,

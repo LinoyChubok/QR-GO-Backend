@@ -36,8 +36,8 @@ const gameSchema = new mongoose.Schema({
     },
     state: {
         type: String,
-        enum: ["Pregame State", "Ingame State", "Endgame State"],
-        default: "Pregame State",
+        enum: ["Pregame", "Ingame", "Endgame"],
+        default: "Pregame",
         required: true,
     }
 })
