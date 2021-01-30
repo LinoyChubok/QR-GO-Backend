@@ -4,7 +4,8 @@ const session = require('express-session');
 const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo')(session);
 const passport = require('passport');
-require('./api/controllers/user.ctrl')(passport);
+const { userController } = require('./api/controllers/user.ctrl');
+userController.passport(passport);
 const socket = require('socket.io');
 const { GuestOnly, AuthOnly, PlayerOnly, AdminOnly } = require('./api/middlewares/auth');
 
@@ -49,8 +50,9 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Routes
-app.get('/', GuestOnly, (req, res) => { res.send("QR GO REST API"); });
+app.get('/', (req, res) => { res.send("QR GO REST API"); });
 app.use('/auth', require('./api/routers/auth.router'));
+app.use('/api/users', require('./api/routers/user.router')); 
 app.use('/api/games', require('./api/routers/game.router')); 
 app.use('/api/routes', require('./api/routers/route.router')); 
 app.use('/api/qr', require('./api/routers/qr.router')); 

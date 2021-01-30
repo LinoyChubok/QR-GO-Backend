@@ -32,7 +32,7 @@ exports.gameController = {
     getGame(req, res) {
         const gameId = req.params.id;
 
-        Game.findById(gameId).then((game) => {
+        Game.findById(gameId).populate('route').then((game) => {
             res.status(200).json({
                 game
             })
