@@ -18,6 +18,10 @@ exports.gameController = {
                 }
             } else filter.state = req.query.state;
         }
+        if('gamePin' in req.query)
+            filter.gamePin = req.query.gamePin;
+        
+        console.log(filter);
         Game.find(filter).populate('route').then((games) => {
             res.status(200).json({
                 games
@@ -85,12 +89,19 @@ exports.gameController = {
 
                     while (!validPin) {
                         gamePin = cryptoRandomString({
-                            length: 4,
+                            length: 5,
                             type: 'numeric'
                         });
                         validPin = await Game.find({
-                            'state': 'Pregame',
-                            'gamePin': gamePin
+                            $and: [{
+                                'gamePin': gamePin
+                            }, {
+                                $or: [{
+                                    'state': 'Pregame'
+                                }, {
+                                    'state': 'Ingame'
+                                }]
+                            }]
                         }).then((activeGames) => {
                             if (Array.isArray(activeGames)) {
                                 if (!(activeGames.length > 0))

@@ -5,22 +5,15 @@ const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo')(session);
 const passport = require('passport');
 const { userController } = require('./api/controllers/user.ctrl');
-userController.passport(passport);
-const socket = require('socket.io');
+const { socketController } = require('./api/controllers/socket.ctrl');
 const { GuestOnly, AuthOnly, PlayerOnly, AdminOnly } = require('./api/middlewares/auth');
 
 const app = express();
-const server = http.createServer(app); 
+const server = http.createServer(app);
 const port = process.env.PORT || 3000;
-const io = socket(server, { cors: { origin: '*' } });
 
-// Run when client connect
-io.on('connection', socket => {
-   console.log('New client connection'); 
-   socket.on('disconnect', () => {
-    console.log('client disconnect'); 
-   })
-  })
+userController.passport(passport);
+socketController.setServer(server);
 
 // Access Control
 app.use((req, res, next) => {
