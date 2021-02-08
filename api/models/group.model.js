@@ -1,14 +1,9 @@
 const mongoose = require('mongoose')
-const { challengeSchema } = require('./challenge.embedded')
 
 const groupSchema = new mongoose.Schema({
     groupName: {
         type: String,
         required: true,
-    },
-    players: {
-        type: [mongoose.Schema.Types.ObjectId],
-        ref: 'User',
     },
     currentChallenge: {
         type: Number,

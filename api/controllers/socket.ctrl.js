@@ -1,36 +1,11 @@
 const socket = require('socket.io');
 const Game = require('../models/game.model');
+const Players = require('../utils/players');
+const Games = require('../utils/games');
+const { remove } = require('../models/game.model');
 
-const users = [];
-
-const addUser = ({ id, user, room }) => {
-  if(!room) return { error: 'Room are required.' };
-
-  const name = user.name;
-  const googleId = user.googleId;
-  const image = user.image;
-
-  const existingUser = users.find((user) => user.room === room && user.googleId === googleId);
-  if(existingUser) return { error: 'You are already on the room!' };
-
-  const newUser = { id, googleId, name, image, room };
-
-  users.push(newUser);
-
-  console.log(newUser);
-
-  return { newUser };
-}
-
-const removeUser = (id) => {
-  const index = users.findIndex((user) => user.id === id);
-
-  if(index !== -1) return users.splice(index, 1)[0];
-}
-
-const getUser = (id) => users.find((user) => user.id === id);
-
-const getUsersInRoom = (room) => users.filter((user) => user.room === room);
+const lobbyPlayers = new Players();
+const gamesIO = new Games();
 
 exports.socketController = {
     setServer(server){
@@ -41,14 +16,27 @@ exports.socketController = {
 
             console.log(`Connected: ${socket.id}`);
 
-            socket.on('playerJoinGame', async ({ user, gamePin }, callback) => {
+            socket.on('adminJoinLobby', async ({ room }, callback) => {
+
+                if(!room)
+                    callback('Game not available!');
+                else {
+                    // Join the game room
+                    const { error, newGame } = gamesIO.addGame( socket.id, 'Pregame', room );
+                    if(error) return callback(error);
+                    socket.join(room);
+                }
+
+            });
+
+            socket.on('playerJoinLobby', async ({ playerData, gamePin }, callback) => {
             try
             {
                 if(isNaN(gamePin))
                     callback('Invalid Game PIN');
                 else {
                 // Find the game ID by the provided game pin
-                let games = await Game.find({ 'gamePin': gamePin });
+                let games = await Game.find({ 'gamePin': gamePin }).populate('route');
 
                 // If the game exists
                 if(games.length > 0){
@@ -56,32 +44,32 @@ exports.socketController = {
                     if(games[0].state == 'Pregame')
                     {
                         const room = (games[0]._id).toString();
-                
-                        const { error, newUser } = addUser({ id: socket.id, user, room });
+                        
+                        if(gamesIO.getGame(room))
+                        {
+                            const { error, newPlayer } = lobbyPlayers.addPlayer( socket.id, playerData, room );
 
-                        if(error) return callback(error);
+                            if(error) return callback(error);
 
-                        console.log(newUser);
+                            socket.emit('gameArea', { area: games[0].route.routeName});
+                    
+                            // Join the game room
+                            socket.join(newPlayer.room)
 
-                        socket.emit('message', { text: `${newUser.name}, welcome to room ${newUser.room}.`});
-                
-                        // Join the game room
-                        socket.join(newUser.room)
-
-                        // Notifying that the player has joined the room.
-                        socket.to(newUser.room).emit('message',  { text: `${newUser.name}, joined to room ${newUser.room}.`});
-                        io.in(newUser.room).emit('roomData', { room: newUser.room, users: getUsersInRoom(newUser.room) });
-
-                        callback();
-                    } else {
+                            // Notifying that the player has joined the lobby
+                            io.in(newPlayer.room).emit('lobbyData', { room: newPlayer.room, players: lobbyPlayers.getPlayers(newPlayer.room) });
+                            callback();
+                        }
+                        else
+                            callback('Please wait for available admin')
+                    } else 
                         callback('Game already started!')
-                    }
+                    
             
                 } else callback('Game not available!');        
             }
 
             } catch (e) {
-                console.log(e);
                 callback('Error');
             }
 
@@ -89,11 +77,29 @@ exports.socketController = {
 
             socket.on('disconnect', () => {
                 console.log(`Disconnected: ${socket.id}`);
-                const user = removeUser(socket.id);
 
-                if(user) {
-                  io.to(user.room).emit('message', { text: `${user.name} has left.` });
-                  io.to(user.room).emit('roomData', { room: user.room, users: getUsersInRoom(user.room)});
+                // Admin 
+                const games = gamesIO.getGames(socket.id);
+                if(games.length > 0)
+                {
+                    for(const game of games) {
+                        console.log(game.state);
+                        if(game.state === 'Pregame')
+                        {
+                            console.log("in")
+                            socket.to(game.room).emit('joinAgain');
+                            gamesIO.removeGame(game.room);
+                        }
+                    }
+                    
+                }
+                else
+                {
+                    // Player 
+                    const player = lobbyPlayers.removePlayer(socket.id);
+                    if(player) {
+                      socket.to(player.room).emit('lobbyData', { room: player.room, players: lobbyPlayers.getPlayers(player.room)});
+                    }
                 }
             })
         })
