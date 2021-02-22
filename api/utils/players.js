@@ -31,6 +31,9 @@ class Players {
     getPlayers(room){
         return this.players.filter((player) => player.room === room);
     }
+    createGroups(room, playersPerGroup){
+        const players = this.getPlayers(room);
+    }
 }
 
 module.exports = Players;

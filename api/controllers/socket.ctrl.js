@@ -1,8 +1,14 @@
 const socket = require('socket.io');
-const Game = require('../models/game.model');
+
 const Players = require('../utils/players');
 const Games = require('../utils/games');
-const { remove } = require('../models/game.model');
+
+const Group = require('../models/group.model');
+const Game = require('../models/game.model');
+
+const GroupMaker = require('group');
+
+const User = require('../models/user.model')
 
 const lobbyPlayers = new Players();
 const gamesIO = new Games();
@@ -16,7 +22,8 @@ exports.socketController = {
 
             console.log(`Connected: ${socket.id}`);
 
-            socket.on('adminJoinLobby', async ({ room }, callback) => {
+            // Admin events
+            socket.on('adminJoinLobby', ({ room }, callback) => {
 
                 if(!room)
                     callback('Game not available!');
@@ -29,6 +36,65 @@ exports.socketController = {
 
             });
 
+            socket.on('startGame', async ({ room }, callback) => {
+
+                if(!room)
+                    callback('Game not available!');
+                else {
+                  try {
+                    let game = await Game.findById(room).populate('route')
+
+                    const playersPerGroup = game.groupsAmount;
+                    const currentPlayers = lobbyPlayers.getPlayers(room);
+        
+                    // const groups = Group.fromArray(currentPlayers, playersPerGroup);
+                    let groups;
+                    let groupsAmount = 0;
+
+                    if(currentPlayers.length > 0)
+                    {
+                        groups = GroupMaker.fromArray(currentPlayers, 1);
+                        groupsAmount = groups.length;
+                    }
+             
+                    if(groupsAmount == 1 || groupsAmount == 0)
+                        callback('No enough players for starting the game');
+                    else
+                    {
+                        for(let i = 0 ; i < groupsAmount ; i++)
+                        {
+                            // Create new group
+                            const newGroup = new Group({
+                                groupName : `Group_${i+1}`,
+                                game : room
+                            });
+                            
+                            newGroup.save();
+
+                            // Add players to group
+                            const playersOfGroup = groups[i];
+                            for(player of playersOfGroup)
+                            {
+                                let users = await User.find({ 'googleId': player.googleId });
+
+                                // If user exists
+                                if(users.length > 0)
+                                {
+                                    User.updateOne({_id: users[0]._id }, { $set: { 'group' : newGroup._id } })
+                                }
+                            }
+                        }
+                        callback();
+                    }    
+
+                    } catch (e) {
+                        callback('Error');
+                    }
+                }
+
+            });
+
+            // Player events
             socket.on('playerJoinLobby', async ({ playerData, gamePin }, callback) => {
             try
             {
@@ -83,10 +149,8 @@ exports.socketController = {
                 if(games.length > 0)
                 {
                     for(const game of games) {
-                        console.log(game.state);
                         if(game.state === 'Pregame')
                         {
-                            console.log("in")
                             socket.to(game.room).emit('joinAgain');
                             gamesIO.removeGame(game.room);
                         }

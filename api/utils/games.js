@@ -7,8 +7,7 @@ class Games {
         if(!room) return { error: 'Game not available!' };
       
         const existingGame = this.games.find((game) => game.room === room);
-        if(existingGame) return { error: 'There is already game that exist at this route' };
-
+        if(existingGame) return { error: "Unfortunately, This game already handled by admin."};
         const newGame = { adminId, state, room };
       
         this.games.push(newGame);
