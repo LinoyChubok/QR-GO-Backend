@@ -11,7 +11,7 @@ const GroupMaker = require('group');
 const User = require('../models/user.model')
 
 const lobbyPlayers = new Players();
-const gamesIO = new Games();
+const activeGames = new Games();
 
 exports.socketController = {
     setServer(server){
@@ -23,15 +23,24 @@ exports.socketController = {
             console.log(`Connected: ${socket.id}`);
 
             // Admin events
-            socket.on('adminJoinLobby', ({ room }, callback) => {
+            socket.on('adminJoinLobby', async ({ room }, callback) => {
 
                 if(!room)
                     callback('Game not available!');
                 else {
-                    // Join the game room
-                    const { error, newGame } = gamesIO.addGame( socket.id, 'Pregame', room );
-                    if(error) return callback(error);
-                    socket.join(room);
+                    let game = await Game.findById(room);
+
+                    if(game.state != 'Pregame')
+                    {
+                        callback("This game already started. You can see the statistics of each game at Endgame state only.");
+                    }
+                    else
+                    {
+                        // Join the game room
+                        const { error, newGame } = activeGames.addGame( socket.id, 'Pregame', room );
+                        if(error) return callback(error);
+                        socket.join(room);
+                    }
                 }
 
             });
@@ -42,7 +51,7 @@ exports.socketController = {
                     callback('Game not available!');
                 else {
                   try {
-                    let game = await Game.findById(room).populate('route')
+                    let game = await Game.findById(room);
 
                     const playersPerGroup = game.groupsAmount;
                     const currentPlayers = lobbyPlayers.getPlayers(room);
@@ -80,11 +89,28 @@ exports.socketController = {
                                 // If user exists
                                 if(users.length > 0)
                                 {
-                                    User.updateOne({_id: users[0]._id }, { $set: { 'group' : newGroup._id } })
+                                    User.updateOne({ _id: users[0]._id }, { $set: { 'group' : newGroup._id }}).then(() => {
+                                    }).catch(error => {
+                                        console.log(error);
+                                    });
                                 }
                             }
                         }
-                        callback();
+
+                        const game = activeGames.getGame(room);
+                        game.state = 'Ingame'
+
+                        const date = new Date();
+                        date.setHours(date.getHours() + 2);
+
+                        Game.updateOne({ _id: room }, { $set: { 'state' : "Ingame", 'createdAt' : date }}).then(() => {
+                        }).catch(error => {
+                            console.log(error);
+                        });
+
+                        io.in(room).emit('gameStarted');
+
+                        callback('Start');
                     }    
 
                     } catch (e) {
@@ -111,7 +137,7 @@ exports.socketController = {
                     {
                         const room = (games[0]._id).toString();
                         
-                        if(gamesIO.getGame(room))
+                        if(activeGames.getGame(room))
                         {
                             const { error, newPlayer } = lobbyPlayers.addPlayer( socket.id, playerData, room );
 
@@ -145,14 +171,14 @@ exports.socketController = {
                 console.log(`Disconnected: ${socket.id}`);
 
                 // Admin 
-                const games = gamesIO.getGames(socket.id);
+                const games = activeGames.getGames(socket.id);
                 if(games.length > 0)
                 {
                     for(const game of games) {
                         if(game.state === 'Pregame')
                         {
                             socket.to(game.room).emit('joinAgain');
-                            gamesIO.removeGame(game.room);
+                            activeGames.removeGame(game.room);
                         }
                     }
                     
