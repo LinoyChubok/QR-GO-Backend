@@ -53,8 +53,6 @@ app.use('/api/routes', require('./api/routers/route.router'));
 app.use('/api/qr', require('./api/routers/qr.router')); 
 app.use('/api/statistics', require('./api/routers/statistics.router')); 
 
-statistics
-
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something is broken!');

@@ -4,4 +4,4 @@ const statisticsRouter = new Router();
 
 statisticsRouter.get('/:id', statisticsController.getStatistics);
 
-module.exports = qrRouter;
+module.exports = statisticsRouter;
