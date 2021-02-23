@@ -20,11 +20,13 @@ exports.statisticsController = {
             const groupsLength = groups.length;
             const challengesAmount = game.route.challengesAmount;
 
+            let groupsOnGame = []
+
             let timeArr = [];
             for (i = 0; i < groupsLength; i++) {
 
                 const groupChallenges = groups[i].challengesTime.length;
-
+                groupsOnGame.push(groups[i].groupName);
                 timeArr.push(groups[i].groupName);
                 if (groupChallenges == 1) {
                     let challengeTimeMinutesCurrent = groups[i].challengesTime[0].getHours() * 60 + groups[i].challengesTime[0].getMinutes();
@@ -62,6 +64,7 @@ exports.statisticsController = {
             let dataGame = [];
             let challengeTimes = []
 
+
             // Insert Challenges
             for (i = 0; i < challengesAmount; i++) {
                 dataGame.push(`{"name":"Challenge ${i + 1}"`)
@@ -75,7 +78,7 @@ exports.statisticsController = {
                 }
                 if (typeof timeArr[i] !== 'string') {
                     for (j = 0; j < challengesAmount; j++) {
-                        let timePerGroup = `"Group_${j + 1}": ${timeArr[i + j]}`
+                        let timePerGroup = `"Group_${j + 1}": ${timeArr[i + j]}`;
                         dataGame[countGroup - 1] = `${dataGame[countGroup - 1]}, ${timePerGroup}`
                         if (j === challengesAmount - 1) {
                             dataGame[countGroup - 1] = `${dataGame[countGroup - 1]} }`
@@ -95,10 +98,15 @@ exports.statisticsController = {
                     return challenge;
                 }
             )
-            console.log(gameData)
+
+            const data = {};
+            data.gameData = gameData;
+            data.groupsOnGame = groupsOnGame;
+
+            console.log(data)
 
             res.status(200).json({
-                gameData
+                data
             })
 
         } catch (e) {

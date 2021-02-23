@@ -4,8 +4,7 @@ const axios = require('axios');
 const User = require('../models/user.model')
 const Group = require('../models/group.model');
 
-//const site_url = "https://qr-go.netlify.app";
-const site_url = "http://localhost:3001";
+const site_url = "https://qr-go.netlify.app";
 
 const Event = require('../utils/events').eventBus;
 
