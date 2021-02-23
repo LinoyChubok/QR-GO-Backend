@@ -47,8 +47,8 @@ exports.qrController = {
                                 console.log(error);
                             });
 
-                            // send notfication 
-                            Event.emit('scan', userGroup._id);
+                            // Send notfication 
+                            Event.emit('scan', userGroup._id, userGroup.game._id);
                             flag = true;
                         } 
                     }

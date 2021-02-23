@@ -39,6 +39,9 @@ const gameSchema = new mongoose.Schema({
         enum: ["Pregame", "Ingame", "Endgame"],
         default: "Pregame",
         required: true,
+    },
+    winner: {
+        type: String,
     }
 })
 

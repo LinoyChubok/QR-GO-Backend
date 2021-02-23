@@ -69,8 +69,7 @@ exports.socketController = {
 
                     if(currentPlayers.length > 0)
                     {
-                        //groups = GroupMaker.fromArray(currentPlayers, playersPerGroup);
-                        groups = GroupMaker.fromArray(currentPlayers, 1);
+                        groups = GroupMaker.fromArray(currentPlayers, playersPerGroup);
                         groupsAmount = groups.length;
                     }
              
@@ -247,33 +246,73 @@ exports.socketController = {
         })
 
 
-        Event.on('scan', async (groupToUpdate) => {
+        Event.on('scan', async (groupToUpdate, gameToUpdate) => {
            try{
+            const game_id = (gameToUpdate).toString()
             const _id = (groupToUpdate).toString()
-            let group = await Group.findById({ _id }).populate({ path: 'game', populate: { path: 'route'}});
-            if(group)
-            {
-                if(group.game.state === 'Ingame')
+
+            let groups = await Group.find({ 'game' : game_id }).populate({ path: 'game', populate: { path: 'route'}});
+
+            // Find the winner
+            const groupsLength = groups.length;
+            let max = 0;
+            let i, index = 0;
+             for (i = 0; i < groupsLength; i++) {
+                let flag = 0;
+
+                if((groups[i]._id).toString() == _id)
+                  flag = 1;
+
+               let currentGroupChallenges = groups[i].currentChallenge;
+               if(flag)
+                currentGroupChallenges++;
+
+               if(currentGroupChallenges > max) {
+                    max = currentGroupChallenges;
+                    index = i;
+                }
+              }
+
+              let foundWinner = 0;
+              let group = await Group.findById({ _id }).populate({ path: 'game', populate: { path: 'route'}});
+              if(group)
+              {
+                if(max > group.game.route.challengesAmount)
+                    foundWinner = 1;
+
+                if(foundWinner == 1)
                 {
-                    const groupRoom = (group._id).toString();
-
-                    const endTime = group.game.createdAt;
-                    endTime.setMinutes(endTime.getMinutes() + group.game.gameTime.minutes);
-                    endTime.setHours(endTime.getHours() + group.game.gameTime.hours);
-
-                    const data = {
-                        groupName : group.groupName,
-                        clue : group.game.route.challenges[group.currentChallenge].clue,
-                        currentChallenge : group.currentChallenge+1,
-                        challenges : group.game.route.challengesAmount,
-                        endTime
-                    }
+                    Game.updateOne({ _id: game_id }, { $set: { 'state' : 'Endgame' , 'winner' : groups[index].groupName}}).then(() => {
+                    }).catch(error => {
+                        console.log(error);
+                    });
                 
-                    // Notifying game data of the group
-                    g_io.in(groupRoom).emit('gameData', { data });
-                } else callback('Game not active');
+                    g_io.in(game_id).emit('gameWinner', { winner : groups[index].groupName });
 
-            } else callback('Group not found');       
+                }  
+                else if(foundWinner == 0)
+                {
+                    if(group.game.state === 'Ingame')
+                    {
+                        const groupRoom = (group._id).toString();
+                        const endTime = group.game.createdAt;
+                        endTime.setMinutes(endTime.getMinutes() + group.game.gameTime.minutes);
+                        endTime.setHours(endTime.getHours() + group.game.gameTime.hours);
+    
+                        const data = {
+                            groupName : group.groupName,
+                            clue : group.game.route.challenges[group.currentChallenge - 1].clue,
+                            currentChallenge : group.currentChallenge,
+                            challenges : group.game.route.challengesAmount,
+                            endTime
+                        }
+                    
+                        // Notifying game data of the group
+                        g_io.in(groupRoom).emit('gameData', { data });
+                    } else callback('Game not active');
+    
+                } else callback('Group not found');     
+              }
 
         } catch (e) {
             console.log(e);
