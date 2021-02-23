@@ -7,6 +7,7 @@ const passport = require('passport');
 const { userController } = require('./api/controllers/user.ctrl');
 const { socketController } = require('./api/controllers/socket.ctrl');
 const { GuestOnly, AuthOnly, PlayerOnly, AdminOnly } = require('./api/middlewares/auth');
+const { Cookie } = require('express-session');
 
 const app = express();
 const server = http.createServer(app);
@@ -33,8 +34,9 @@ app.use(
     session({
       secret: 'shenkar',
       resave: false,
-      saveUninitialized: false,
-      store: new MongoStore({ mongooseConnection: mongoose.connection })
+      saveUninitialized: true,
+      store: new MongoStore({ mongooseConnection: mongoose.connection }),
+      cookie: { maxAge: 1000 * 60 * 60 * 24 }
     })
   )
 

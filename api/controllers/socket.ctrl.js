@@ -13,12 +13,20 @@ const User = require('../models/user.model')
 const lobbyPlayers = new Players();
 const activeGames = new Games();
 
+const Event = require('../utils/events').eventBus;
+
+let g_socket;
+let g_io;
+
 exports.socketController = {
     setServer(server){
         const io = socket(server, { cors: { origin: '*' } });
+        g_io = io;
 
         // Run when client connect
         io.on('connection', socket => {
+
+            g_socket = socket;
 
             console.log(`Connected: ${socket.id}`);
 
@@ -56,12 +64,12 @@ exports.socketController = {
                     const playersPerGroup = game.groupsAmount;
                     const currentPlayers = lobbyPlayers.getPlayers(room);
         
-                    // const groups = Group.fromArray(currentPlayers, playersPerGroup);
                     let groups;
                     let groupsAmount = 0;
 
                     if(currentPlayers.length > 0)
                     {
+                        //groups = GroupMaker.fromArray(currentPlayers, playersPerGroup);
                         groups = GroupMaker.fromArray(currentPlayers, 1);
                         groupsAmount = groups.length;
                     }
@@ -101,7 +109,6 @@ exports.socketController = {
                         game.state = 'Ingame'
 
                         const date = new Date();
-                        date.setHours(date.getHours() + 2);
 
                         Game.updateOne({ _id: room }, { $set: { 'state' : "Ingame", 'createdAt' : date }}).then(() => {
                         }).catch(error => {
@@ -114,6 +121,7 @@ exports.socketController = {
                     }    
 
                     } catch (e) {
+                        console.log(e);
                         callback('Error');
                     }
                 }
@@ -166,7 +174,51 @@ exports.socketController = {
             }
 
             });
+                     
+            socket.on('playerJoinGame', async ({ id }, callback) => { 
+                try{
+                    const _id = (id).toString()
+                    let user = await User.findById({ _id }).populate({ path: 'group', populate: { path: 'game' , populate: { path: 'route' }}});
+                    if(user)
+                    {
+                        if(user.group)
+                        {
+                            if(user.group.game.state === 'Ingame')
+                            {
+                                // Join the game room
+                                const gameRoom = (user.group.game._id).toString();
+                                socket.join(gameRoom)
 
+                                // Join the group room
+                                const groupRoom = (user.group._id).toString();
+                                socket.join(groupRoom)
+                                
+                                const endTime = user.group.game.createdAt;
+                                endTime.setMinutes(endTime.getMinutes() + user.group.game.gameTime.minutes);
+                                endTime.setHours(endTime.getHours() + user.group.game.gameTime.hours);
+
+                                const data = {
+                                    groupName : user.group.groupName,
+                                    clue : user.group.game.route.challenges[user.group.currentChallenge - 1].clue,
+                                    currentChallenge : user.group.currentChallenge,
+                                    challenges : user.group.game.route.challengesAmount,
+                                    endTime
+                                }
+
+                                socket.emit('gameData', { data });
+                            } else callback('Game not active');
+
+                        } else callback('Cannot play without group');
+
+                    } else callback('User not found');       
+
+                } catch (e) {
+                    console.log(e);
+                    callback('Error');
+                }
+                
+            });
+             
             socket.on('disconnect', () => {
                 console.log(`Disconnected: ${socket.id}`);
 
@@ -193,5 +245,43 @@ exports.socketController = {
                 }
             })
         })
+
+
+        Event.on('scan', async (groupToUpdate) => {
+           try{
+            const _id = (groupToUpdate).toString()
+            let group = await Group.findById({ _id }).populate({ path: 'game', populate: { path: 'route'}});
+            if(group)
+            {
+                if(group.game.state === 'Ingame')
+                {
+                    const groupRoom = (group._id).toString();
+
+                    const endTime = group.game.createdAt;
+                    endTime.setMinutes(endTime.getMinutes() + group.game.gameTime.minutes);
+                    endTime.setHours(endTime.getHours() + group.game.gameTime.hours);
+
+                    const data = {
+                        groupName : group.groupName,
+                        clue : group.game.route.challenges[group.currentChallenge].clue,
+                        currentChallenge : group.currentChallenge+1,
+                        challenges : group.game.route.challengesAmount,
+                        endTime
+                    }
+                
+                    // Notifying game data of the group
+                    g_io.in(groupRoom).emit('gameData', { data });
+                } else callback('Game not active');
+
+            } else callback('Group not found');       
+
+        } catch (e) {
+            console.log(e);
+            callback('Error');
+        }
+
+
+        });
+    
     }
 }
