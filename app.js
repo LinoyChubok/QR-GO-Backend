@@ -51,6 +51,9 @@ app.use('/api/users', require('./api/routers/user.router'));
 app.use('/api/games', require('./api/routers/game.router')); 
 app.use('/api/routes', require('./api/routers/route.router')); 
 app.use('/api/qr', require('./api/routers/qr.router')); 
+app.use('/api/statistics', require('./api/routers/statistics.router')); 
+
+statistics
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
