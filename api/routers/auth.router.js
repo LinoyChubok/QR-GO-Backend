@@ -2,8 +2,8 @@ const { Router } = require ('express');
 const passport = require('passport')
 const authRouter = new Router();
 
-//const site_url = "https://qr-go.netlify.app";
-const site_url = "http://localhost:3001";
+const site_url = "https://qr-go.netlify.app";
+// const site_url = "http://localhost:3001";
 
 authRouter.get('/google', passport.authenticate('google', { scope: ['profile'] }));
 authRouter.get('/google/callback', passport.authenticate('google', { failureRedirect: site_url }), (req, res) => { 
