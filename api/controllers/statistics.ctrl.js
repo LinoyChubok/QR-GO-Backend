@@ -21,25 +21,24 @@ exports.statisticsController = {
             const challengesAmount = game.route.challengesAmount;
 
             let groupsOnGame = []
-
             let timeArr = [];
+
             for (i = 0; i < groupsLength; i++) {
 
                 const groupChallenges = groups[i].challengesTime.length;
                 groupsOnGame.push(groups[i].groupName);
                 timeArr.push(groups[i].groupName);
-                if (groupChallenges == 1) {
-                    let challengeTimeMinutesCurrent = groups[i].challengesTime[0].getHours() * 60 + groups[i].challengesTime[0].getMinutes();
-                    let createdAt = game.createdAt.getHours() * 60 + game.createdAt.getMinutes();
-                    timeArr.push(challengeTimeMinutesCurrent - createdAt);
 
-                    let j = 1;
+
+                if(groupChallenges == 0) {
+                    let j = 0;
                     while (j < challengesAmount) {
                         timeArr.push(0);
                         j++;
                     }
-                } else {
-                    for (j = 0; j < groupChallenges - 1; j++) {
+                }
+                else {
+                    for (j = 0; j < challengesAmount && j < groupChallenges; j++) {
 
                         if (j == 0) {
                             let challengeTimeMinutesCurrent = groups[i].challengesTime[j].getHours() * 60 + groups[i].challengesTime[j].getMinutes();
@@ -48,22 +47,22 @@ exports.statisticsController = {
 
                         } else {
                             let challengeTimeMinutesCurrent = groups[i].challengesTime[j].getHours() * 60 + groups[i].challengesTime[j].getMinutes();
-                            let challengeTimeMinutesNext = groups[i].challengesTime[j + 1].getHours() * 60 + groups[i].challengesTime[j + 1].getMinutes();
-                            timeArr.push(challengeTimeMinutesNext - challengeTimeMinutesCurrent);
+                            let challengeTimeMinutesBefore = groups[i].challengesTime[j - 1].getHours() * 60 + groups[i].challengesTime[j - 1].getMinutes();
+                            timeArr.push(challengeTimeMinutesCurrent - challengeTimeMinutesBefore);
                         }
 
                     }
-                    j++;
+
                     while (j < challengesAmount) {
                         timeArr.push(0);
                         j++;
                     }
                 }
+       
+            
             }
 
             let dataGame = [];
-            let challengeTimes = []
-
 
             // Insert Challenges
             for (i = 0; i < challengesAmount; i++) {
@@ -102,8 +101,6 @@ exports.statisticsController = {
             const data = {};
             data.gameData = gameData;
             data.groupsOnGame = groupsOnGame;
-
-            console.log(data)
 
             res.status(200).json({
                 data
