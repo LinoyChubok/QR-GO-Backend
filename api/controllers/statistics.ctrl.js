@@ -66,7 +66,7 @@ exports.statisticsController = {
 
             // Insert Challenges
             for (i = 0; i < challengesAmount; i++) {
-                dataGame.push(`{"name":"Challenge ${i + 1}"`)
+                dataGame.push(`{ "name":"Challenge ${i + 1}"`)
             }
 
             // Insert game time for each group in each challenge
@@ -77,11 +77,11 @@ exports.statisticsController = {
                 }
                 if (typeof timeArr[i] !== 'string') {
                     for (j = 0; j < challengesAmount; j++) {
-                        let timePerGroup = `"Group_${j + 1}": ${timeArr[i + j]}`;
-                        dataGame[countGroup - 1] = `${dataGame[countGroup - 1]}, ${timePerGroup}`
-                        if (j === challengesAmount - 1) {
-                            dataGame[countGroup - 1] = `${dataGame[countGroup - 1]} }`
-                        }
+                        let timePerGroup = `"Group_${countGroup}": ${timeArr[i + j]}`;
+                        if(countGroup !== challengesAmount)
+                            dataGame[j] = `${dataGame[j]}, ${timePerGroup}`
+                        else dataGame[j] = `${dataGame[j]}, ${timePerGroup} }`
+
                     }
                     if (countGroup !== groupsLength)
                         i = i + challengesAmount - 1;
